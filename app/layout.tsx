@@ -2,6 +2,7 @@
 // but it's usually good practice to add it to your top-level component.
 // In Next.js, this is the root layout (more on this later).
 import '@/app/ui/global.css';
+import { inter } from '@/app/ui/fonts';
 
 export default function RootLayout({
   children,
@@ -10,7 +11,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      {/* Tailwind antialiased class which smooths out the font */}
+      <body className={`${inter.className} antialiased`}>{children}</body>
     </html>
   );
 }
