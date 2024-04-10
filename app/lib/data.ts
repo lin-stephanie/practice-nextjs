@@ -1,3 +1,7 @@
+/* Fetching Data */
+// You can call sql inside any Server Component. But to allow you to navigate the components more easily,
+// we've kept all the data queries in the data.ts file, and you can import them into the components.
+
 import { sql } from '@vercel/postgres';
 import {
   CustomerField,
@@ -53,10 +57,20 @@ export async function fetchLatestInvoices() {
 }
 
 export async function fetchCardData() {
+  // You might be tempted to fetch all the invoices and customers, and use JavaScript to manipulate the data.
+  // For example, you could use Array.length to get the total number of invoices and customers:
+
+  // const totalInvoices = allInvoices.length;
+  // const totalCustomers = allCustomers.length;
+
+  // But with SQL, you can fetch only the data you need. It's a little longer than using Array.length,
+  // but it means less data needs to be transferred during the request. This is the SQL alternative:
+
   try {
     // You can probably combine these into a single SQL query
     // However, we are intentionally splitting them to demonstrate
     // how to initialize multiple queries in parallel with JS.
+
     const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
     const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
     const invoiceStatusPromise = sql`SELECT
@@ -64,6 +78,11 @@ export async function fetchCardData() {
          SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
          FROM invoices`;
 
+    /* Parallel data fetching */
+    // In JavaScript, you can use the Promise.all() or Promise.allSettled() functions to initiate all promises at the same time.
+    // By using this pattern, you can:
+    // Start executing all data fetches at the same time, which can lead to performance gains.
+    // Use a native JavaScript pattern that can be applied to any library or framework.
     const data = await Promise.all([
       invoiceCountPromise,
       customerCountPromise,
