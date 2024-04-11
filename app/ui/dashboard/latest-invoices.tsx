@@ -2,13 +2,14 @@ import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import Image from 'next/image';
 import { lusitana } from '@/app/ui/fonts';
-import { LatestInvoice } from '@/app/lib/definitions';
+import { fetchLatestInvoices } from '@/app/lib/data';
 
-export default async function LatestInvoices({
-  latestInvoices,
-}: {
-  latestInvoices: LatestInvoice[];
-}) {
+export default async function LatestInvoices() {
+  /* Streaming */
+  // Make component async, remove the props
+  // Fetch data inside the component
+  const latestInvoices = await fetchLatestInvoices();
+
   // console.log('latestInvoices', latestInvoices);
 
   return (

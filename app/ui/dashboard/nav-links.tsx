@@ -1,3 +1,6 @@
+/* Pattern: Showing active links */
+// Since usePathname() is a hook, you'll need to turn nav-links.tsx into a Client Component.
+// Add React's "use client" directive to the top of the file, then import usePathname() from next/navigation
 'use client';
 
 import {
