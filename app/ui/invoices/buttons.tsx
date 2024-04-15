@@ -15,8 +15,11 @@ export function CreateInvoice() {
 
 export function UpdateInvoice({ id }: { id: string }) {
   return (
+    /* 1. Create a Dynamic Route Segment with the invoice id */
+    // update the href of the Link to accept the id prop.
+    // You can use template literals to link to a dynamic route segment
     <Link
-      href="/dashboard/invoices"
+      href={`/dashboard/invoices/${id}/edit`}
       className="rounded-md border p-2 hover:bg-gray-100"
     >
       <PencilIcon className="w-5" />
