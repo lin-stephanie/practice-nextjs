@@ -23,12 +23,19 @@ export default function EditInvoiceForm({
   /* 4. Pass the id to the Server Action */
   // You cannot pass the id as an argument like so:
   // <form action={updateInvoice(id)}>
+
+  // err: Expected 2 arguments, but got 1.ts(2554)
+  // const updateInvoiceWithId = () => updateInvoice(invoice.id);
+
   // Instead, you can pass id to the Server Action using JS bind.
   // This will ensure that any values passed to the Server Action are encoded.
   const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
 
   return (
     <form action={updateInvoiceWithId}>
+      {/* Using a hidden input field in your form also works  */}
+      {/* However, the values will appear as full text in the HTML source, which is not ideal for sensitive data like IDs. */}
+      {/* <input type="hidden" name="id" value={invoice.id} /> */}
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">

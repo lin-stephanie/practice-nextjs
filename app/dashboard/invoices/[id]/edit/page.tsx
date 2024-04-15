@@ -9,6 +9,9 @@ import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
 
 import { fetchInvoiceById, fetchCustomers } from '@/app/lib/data';
 
+/* Handling 404 errors with the notFound function */
+import { notFound } from 'next/navigation';
+
 /* 2. Read the invoice id from page params */
 // Notice how it's similar to your /create invoice page,
 // except it imports a different form (from the edit-form.tsx file).
@@ -27,6 +30,18 @@ export default async function Page({ params }: { params: { id: string } }) {
     fetchInvoiceById(id),
     fetchCustomers(),
   ]);
+
+  /* Handling 404 errors with the notFound function */
+  // you can use a conditional to invoke notFound if the invoice doesn't exist.
+  //  <Page> will now throw an error if a specific invoice is not found. To show an error UI to the user.
+
+  // That's something to keep in mind, notFound will take precedence over error.tsx,
+  // so you can reach out for it when you want to handle more specific errors!
+
+  // For example, visit http://localhost:3000/dashboard/invoices/2e94d1ed-d220-449f-9f11-f0bbceed9645/edit. to test
+  if (!invoice) {
+    notFound();
+  }
 
   return (
     <main>

@@ -64,10 +64,16 @@ export async function createInvoice(formData: FormData) {
 
   /* 5. Inserting the data into your database */
   // you can create an SQL query to insert the new invoice into your database and pass in the variables
-  await sql`
+  try {
+    await sql`
     INSERT INTO invoices (customer_id, amount, status, date)
     VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
   `;
+  } catch (error) {
+    return {
+      message: 'Database Error: Failed to Create Invoice.',
+    };
+  }
 
   /* 6. Revalidate and redirect */
   // Next.js has a Client-side Router Cache that stores the route segments in the user's browser for a time.
@@ -100,11 +106,15 @@ export async function updateInvoice(id: string, formData: FormData) {
 
   const amountInCents = amount * 100;
 
-  await sql`
-      UPDATE invoices
-      SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-      WHERE id = ${id}
-    `;
+  try {
+    await sql`
+        UPDATE invoices
+        SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+        WHERE id = ${id}
+      `;
+  } catch (error) {
+    return { message: 'Database Error: Failed to Update Invoice.' };
+  }
 
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
@@ -112,6 +122,14 @@ export async function updateInvoice(id: string, formData: FormData) {
 
 /* Deleting an invoice */
 export async function deleteInvoice(id: string) {
-  await sql`DELETE FROM invoices WHERE id = ${id}`;
-  revalidatePath('/dashboard/invoices');
+  // When you try to delete an invoice again, you should see the fallback UI（in error.tsx）
+  throw new Error('Failed to Delete Invoice');
+
+  try {
+    await sql`DELETE FROM invoices WHERE id = ${id}`;
+    revalidatePath('/dashboard/invoices');
+    return { message: 'Deleted Invoice.' };
+  } catch (error) {
+    return { message: 'Database Error: Failed to Delete Invoice.' };
+  }
 }
