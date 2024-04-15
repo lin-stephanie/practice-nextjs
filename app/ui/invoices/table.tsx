@@ -109,9 +109,10 @@ export default async function InvoicesTable({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      {/* 1. Create a Dynamic Route Segment with the invoice id */}
+                      {/* 1. Updating an invoice - Create a Dynamic Route Segment with the invoice id */}
                       <UpdateInvoice id={invoice.id} />
 
+                      {/* Deleting an invoice */}
                       <DeleteInvoice id={invoice.id} />
                     </div>
                   </td>

@@ -1,6 +1,8 @@
 import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
+import { deleteInvoice } from '@/app/lib/actions';
+
 export function CreateInvoice() {
   return (
     <Link
@@ -15,7 +17,7 @@ export function CreateInvoice() {
 
 export function UpdateInvoice({ id }: { id: string }) {
   return (
-    /* 1. Create a Dynamic Route Segment with the invoice id */
+    /* Updating an invoice - 1. Create a Dynamic Route Segment with the invoice id */
     // update the href of the Link to accept the id prop.
     // You can use template literals to link to a dynamic route segment
     <Link
@@ -28,12 +30,15 @@ export function UpdateInvoice({ id }: { id: string }) {
 }
 
 export function DeleteInvoice({ id }: { id: string }) {
+  /* Deleting an invoice */
+  const deleteInvoiceWithId = deleteInvoice.bind(null, id);
+
   return (
-    <>
+    <form action={deleteInvoiceWithId}>
       <button className="rounded-md border p-2 hover:bg-gray-100">
         <span className="sr-only">Delete</span>
         <TrashIcon className="w-5" />
       </button>
-    </>
+    </form>
   );
 }
