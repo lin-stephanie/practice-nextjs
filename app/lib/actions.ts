@@ -16,15 +16,44 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+// This is temporary until @types/react-dom is updated
+export type State = {
+  errors?: {
+    customerId?: string[];
+    amount?: string[];
+    status?: string[];
+  };
+  message?: string | null;
+};
+
 // import Zod and define a schema that matches the shape of your form object.
 // This schema will validate the formData before saving it to a database.
 // The amount field is specifically set to coerce (change) from a string to a number while also validating its type.
 // This is because input elements with type="number" actually return a string, not a number!
-const FormSchema = z.object({
+/* const FormSchema = z.object({
   id: z.string(),
   customerId: z.string(),
   amount: z.coerce.number(),
   status: z.enum(['pending', 'paid']),
+  date: z.string(),
+}); */
+
+/* Form validation - Server-Side validation */
+// use Zod to validate form data
+// customerId - Zod already throws an error if the customer field is empty as it expects a type string. But let's add a friendly message if the user doesn't select a customer.
+// amount - Since you are coercing the amount type from string to number, it'll default to zero if the string is empty. Let's tell Zod we always want the amount greater than 0 with the .gt() function.
+// status - Zod already throws an error if the status field is empty as it expects "pending" or "paid". Let's also add a friendly message if the user doesn't select a status.
+const FormSchema = z.object({
+  id: z.string(),
+  customerId: z.string({
+    invalid_type_error: 'Please select a customer.',
+  }),
+  amount: z.coerce
+    .number()
+    .gt(0, { message: 'Please enter an amount greater than $0.' }),
+  status: z.enum(['pending', 'paid'], {
+    invalid_type_error: 'Please select an invoice status.',
+  }),
   date: z.string(),
 });
 
@@ -33,7 +62,11 @@ const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
 // create a new async function that accepts formData
 // you'll need to extract the values of formData, there are a couple of methods
-export async function createInvoice(formData: FormData) {
+
+// prevState - contains the state passed from the useFormState hook.
+// You won't be using it in the action in this example, but it's a required prop.
+export async function createInvoice(prevState: State, formData: FormData) {
+  console.log('prevState:', prevState);
   console.log('formData:', formData);
 
   /* formData: FormData {
@@ -47,12 +80,36 @@ export async function createInvoice(formData: FormData) {
   ]
 } */
 
-  /* 3. Extract the data from formData */
-  const { customerId, amount, status } = CreateInvoice.parse({
+  // Validate form fields using Zod
+  // safeParse() will return an object containing either a success or error field.
+  // This will help handle validation more gracefully without having put this logic inside the try/catch block.
+  const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get('customerId'),
     amount: formData.get('amount'),
     status: formData.get('status'),
   });
+
+  console.log('validatedFields:', validatedFields);
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  // Before sending the information to your database,
+  // check if the form fields were validated correctly with a conditional:
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { customerId, amount, status } = validatedFields.data;
+
+  /* 3. Extract the data from formData */
+  /* const { customerId, amount, status } = CreateInvoice.parse({
+    customerId: formData.get('customerId'),
+    amount: formData.get('amount'),
+    status: formData.get('status'),
+  }); */
 
   /* 4. Validate and prepare the data */
   // It's usually good practice to store monetary values in cents in your database to
@@ -70,6 +127,7 @@ export async function createInvoice(formData: FormData) {
     VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
   `;
   } catch (error) {
+    // If a database error occurs, return a more specific error.
     return {
       message: 'Database Error: Failed to Create Invoice.',
     };
@@ -88,7 +146,6 @@ export async function createInvoice(formData: FormData) {
 
   //   console.log('typeof rawFormData.amount:', typeof rawFormData.amount); // typeof rawFormData.amount: string
   //   console.log('rawFormData:', rawFormData);
-
   /* rawFormData: {
   customerId: 'cc27c14a-0acf-4f4a-a6c9-d45682c144b9',
   amount: '100',

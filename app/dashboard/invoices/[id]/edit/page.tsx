@@ -1,3 +1,4 @@
+/* Creating an invoice */
 /* 1. Create a Dynamic Route Segment with the invoice id */
 // Next.js allows you to create Dynamic Route Segments
 // when you don't know the exact segment name and want to create routes based on data.
