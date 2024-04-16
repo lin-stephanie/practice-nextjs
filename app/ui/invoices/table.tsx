@@ -85,6 +85,11 @@ export default async function InvoicesTable({
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
+                      {/* Using the ESLint accessibility plugin in Next.js */}
+                      {/* By default, Next.js includes the eslint-plugin-jsx-a11y plugin to help catch accessibility issues early. */}
+                      {/* Delete this line: Now run npm run lint again, and you should see the warning */}
+                      {/* If you tried to deploy your application to Vercel, the warning would also show up in the build logs. 
+                      This is because next lint runs as part of the build process. */}
                       <Image
                         src={invoice.image_url}
                         className="rounded-full"
